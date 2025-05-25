@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>דיווח שעות עבודה</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        input[type="date"], input[type="time"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+        
+        input[type="date"]:focus, input[type="time"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-export {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+        
+        .btn-export:hover {
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .btn-clear {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+        
+        .btn-clear:hover {
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .records-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .records-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .records-count {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .summary-section {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .summary-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .monthly-breakdown {
+            margin-top: 20px;
+        }
+        
+        .month-item {
+            background: white;
+            color: #333;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-right: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .month-name {
+            font-weight: 600;
+        }
+        
+        .month-hours {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .record-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-right: 4px solid #4CAF50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .record-date {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .record-time {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .record-hours {
+            color: #4CAF50;
+            font-weight: 600;
+            float: left;
+        }
+        
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .time-inputs {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ דיווח שעות עבודה</h1>
+            <p>הזן את שעות העבודה שלך בקלות</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="timesheetForm">
+                <div class="form-group">
+                    <label for="workDate">📅 תאריך עבודה:</label>
+                    <input type="date" id="workDate" required>
+                </div>
+                
+                <div class="time-inputs">
+                    <div class="form-group">
+                        <label for="startTime">🕐 שעת התחלה:</label>
+                        <input type="time" id="startTime" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="endTime">🕐 שעת סיום:</label>
+                        <input type="time" id="endTime" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">➕ הוסף רישום</button>
+            </form>
+            
+            <div id="message"></div>
+            
+            <button id="exportBtn" class="btn btn-export">📊 ייצא לאקסל</button>
+            <button id="clearBtn" class="btn btn-clear">🗑️ נקה הכל</button>
+        </div>
+        
+        <div class="records-section">
+            <div class="summary-section">
+                <div class="summary-title">📊 סיכום שעות עבודה</div>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">סך הכל שעות</div>
+                        <div class="summary-value" id="totalHours">0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">ממוצע יומי</div>
+                        <div class="summary-value" id="avgDaily">0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">ימי עבודה</div>
+                        <div class="summary-value" id="workDays">0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">החודש הנוכחי</div>
+                        <div class="summary-value" id="currentMonth">0</div>
+                    </div>
+                </div>
+                <div class="monthly-breakdown" id="monthlyBreakdown"></div>
+            </div>
+            
+            <div class="records-header">
+                <h3>רישומי שעות</h3>
+                <span class="records-count" id="recordsCount">0 רישומים</span>
+            </div>
+            <div id="recordsList"></div>
+        </div>
+    </div>
+
+    <script>
+        class TimesheetApp {
+            constructor() {
+                this.records = this.loadRecords();
+                this.initializeEventListeners();
+                this.setTodayDate();
+                this.displayRecords();
+            }
+            
+            initializeEventListeners() {
+                document.getElementById('timesheetForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addRecord();
+                });
+                
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportToExcel();
+                });
+                
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    this.clearAllRecords();
+                });
+            }
+            
+            setTodayDate() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('workDate').value = today;
+            }
+            
+            addRecord() {
+                const date = document.getElementById('workDate').value;
+                const startTime = document.getElementById('startTime').value;
+                const endTime = document.getElementById('endTime').value;
+                
+                if (!this.validateTimes(startTime, endTime)) {
+                    this.showMessage('שעת הסיום חייבת להיות מאוחרת משעת ההתחלה', 'error');
+                    return;
+                }
+                
+                const hours = this.calculateHours(startTime, endTime);
+                
+                const record = {
+                    id: Date.now(),
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime,
+                    hours: hours
+                };
+                
+                this.records.push(record);
+                this.saveRecords();
+                this.displayRecords();
+                this.showMessage('הרישום נוסף בהצלחה!', 'success');
+                
+                // Clear time inputs
+                document.getElementById('startTime').value = '';
+                document.getElementById('endTime').value = '';
+            }
+            
+            validateTimes(startTime, endTime) {
+                return startTime < endTime;
+            }
+            
+            calculateHours(startTime, endTime) {
+                const start = new Date(`2000-01-01T${startTime}`);
+                const end = new Date(`2000-01-01T${endTime}`);
+                const diffMs = end - start;
+                const diffHours = diffMs / (1000 * 60 * 60);
+                return Math.round(diffHours * 100) / 100; // Round to 2 decimal places
+            }
+            
+            displayRecords() {
+                const recordsList = document.getElementById('recordsList');
+                const recordsCount = document.getElementById('recordsCount');
+                
+                recordsCount.textContent = `${this.records.length} רישומים`;
+                
+                // Update summary statistics
+                this.updateSummary();
+                
+                if (this.records.length === 0) {
+                    recordsList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">אין רישומים עדיין</p>';
+                    return;
+                }
+                
+                // Sort records by date (newest first)
+                const sortedRecords = [...this.records].sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                recordsList.innerHTML = sortedRecords.map(record => `
+                    <div class="record-item">
+                        <div class="record-date">${this.formatDate(record.date)}</div>
+                        <div class="record-time">
+                            ${record.startTime} - ${record.endTime}
+                            <span class="record-hours">${record.hours} שעות</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            updateSummary() {
+                const totalHours = this.records.reduce((sum, record) => sum + record.hours, 0);
+                const workDays = this.records.length;
+                const avgDaily = workDays > 0 ? (totalHours / workDays) : 0;
+                
+                // Current month hours
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth();
+                const currentYear = currentDate.getFullYear();
+                
+                const currentMonthHours = this.records
+                    .filter(record => {
+                        const recordDate = new Date(record.date);
+                        return recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear;
+                    })
+                    .reduce((sum, record) => sum + record.hours, 0);
+                
+                // Update summary display
+                document.getElementById('totalHours').textContent = Math.round(totalHours * 100) / 100;
+                document.getElementById('avgDaily').textContent = Math.round(avgDaily * 100) / 100;
+                document.getElementById('workDays').textContent = workDays;
+                document.getElementById('currentMonth').textContent = Math.round(currentMonthHours * 100) / 100;
+                
+                // Update monthly breakdown
+                this.updateMonthlyBreakdown();
+            }
+            
+            updateMonthlyBreakdown() {
+                const monthlyData = {};
+                
+                // Group records by month
+                this.records.forEach(record => {
+                    const date = new Date(record.date);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    const monthName = date.toLocaleDateString('he-IL', { year: 'numeric', month: 'long' });
+                    
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = {
+                            name: monthName,
+                            hours: 0,
+                            days: 0
+                        };
+                    }
+                    
+                    monthlyData[monthKey].hours += record.hours;
+                    monthlyData[monthKey].days += 1;
+                });
+                
+                // Sort months by date (newest first)
+                const sortedMonths = Object.entries(monthlyData)
+                    .sort(([a], [b]) => b.localeCompare(a));
+                
+                const monthlyBreakdown = document.getElementById('monthlyBreakdown');
+                
+                if (sortedMonths.length === 0) {
+                    monthlyBreakdown.innerHTML = '';
+                    return;
+                }
+                
+                monthlyBreakdown.innerHTML = `
+                    <h4 style="margin-bottom: 15px; text-align: center;">פירוט לפי חודשים</h4>
+                    ${sortedMonths.map(([key, data]) => `
+                        <div class="month-item">
+                            <div>
+                                <div class="month-name">${data.name}</div>
+                                <div style="font-size: 12px; opacity: 0.8;">${data.days} ימים</div>
+                            </div>
+                            <div class="month-hours">${Math.round(data.hours * 100) / 100} שעות</div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+            
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('he-IL', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            exportToExcel() {
+                if (this.records.length === 0) {
+                    this.showMessage('אין רישומים לייצוא', 'error');
+                    return;
+                }
+                
+                // Sort records by date
+                const sortedRecords = [...this.records].sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                // Calculate monthly summaries
+                const monthlyData = {};
+                sortedRecords.forEach(record => {
+                    const date = new Date(record.date);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    const monthName = date.toLocaleDateString('he-IL', { year: 'numeric', month: 'long' });
+                    
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = { name: monthName, hours: 0, days: 0 };
+                    }
+                    monthlyData[monthKey].hours += record.hours;
+                    monthlyData[monthKey].days += 1;
+                });
+                
+                // Create CSV content with detailed records
+                const headers = ['תאריך', 'שעת התחלה', 'שעת סיום', 'מספר שעות'];
+                let csvContent = [headers.join(',')];
+                
+                // Add all records
+                csvContent.push(...sortedRecords.map(record => 
+                    `${record.date},${record.startTime},${record.endTime},${record.hours}`
+                ));
+                
+                // Add summary section
+                csvContent.push(''); // Empty line
+                csvContent.push('סיכום חודשי:');
+                csvContent.push('חודש,מספר ימים,סך שעות');
+                
+                Object.entries(monthlyData)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .forEach(([key, data]) => {
+                        csvContent.push(`${data.name},${data.days},${Math.round(data.hours * 100) / 100}`);
+                    });
+                
+                // Add total summary
+                const totalHours = sortedRecords.reduce((sum, record) => sum + record.hours, 0);
+                const totalDays = sortedRecords.length;
+                csvContent.push(''); // Empty line
+                csvContent.push('סיכום כללי:');
+                csvContent.push(`סך הכל ימים,${totalDays}`);
+                csvContent.push(`סך הכל שעות,${Math.round(totalHours * 100) / 100}`);
+                csvContent.push(`ממוצע שעות ביום,${Math.round((totalHours / totalDays) * 100) / 100}`);
+                
+                // Add BOM for Hebrew support
+                const BOM = '\uFEFF';
+                const blob = new Blob([BOM + csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                
+                // Create download link
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `timesheet-detailed-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                this.showMessage('הקובץ המפורט יוצא בהצלחה!', 'success');
+            }
+            
+            clearAllRecords() {
+                if (confirm('האם אתה בטוח שברצונך למחוק את כל הרישומים?')) {
+                    this.records = [];
+                    this.saveRecords();
+                    this.displayRecords();
+                    this.showMessage('כל הרישומים נמחקו', 'success');
+                }
+            }
+            
+            saveRecords() {
+                const recordsData = JSON.stringify(this.records);
+                // Using a simple in-memory storage for this demo
+                window.timesheetRecords = recordsData;
+            }
+            
+            loadRecords() {
+                try {
+                    const data = window.timesheetRecords;
+                    return data ? JSON.parse(data) : [];
+                } catch (e) {
+                    return [];
+                }
+            }
+            
+            showMessage(text, type) {
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type}`;
+                
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                    messageDiv.className = '';
+                }, 3000);
+            }
+        }
+        
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TimesheetApp();
+        });
+    </script>
+</body>
+</html>
